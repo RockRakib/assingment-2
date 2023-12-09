@@ -86,6 +86,22 @@ const getAllOrders = async (userId: string) => {
   }
 };
 
+const calcOrderTotalPrice = async (userId: string) => {
+  try {
+    const result = await UserModel.findOne({ userId });
+    if (!result) {
+      throw new Error("user not found");
+    }
+    const TotalPrice = result.orders?.reduce(
+      (total, order) => total + (order.price || 0) * (order.quantity || 0),
+      0
+    );
+    return TotalPrice;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+  }
+};
 export const userService = {
   creatUserIntoDb,
   getUsersFromDb,
@@ -94,4 +110,5 @@ export const userService = {
   deleteUserById,
   getUserOrders,
   getAllOrders,
+  calcOrderTotalPrice,
 };

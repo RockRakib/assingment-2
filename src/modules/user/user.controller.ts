@@ -9,7 +9,7 @@ const creatUser = async (req: Request, res: Response) => {
 
     const result = await userService.creatUserIntoDb(user);
     if (result) {
-      const { password, ...rest } = result.toObject();
+      const { password, orders, ...rest } = result.toObject();
 
       res.status(200).json({
         success: true,
@@ -167,12 +167,12 @@ const userOrders = async (req: Request, res: Response) => {
 const userAllOrder = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const result = await userService.getAllOrders(userId);
+    const orders = await userService.getAllOrders(userId);
 
     res.status(200).json({
       success: true,
       message: "order fetched successfully",
-      data: { result },
+      data: { orders },
     });
   } catch (error) {
     res.status(500).json({
