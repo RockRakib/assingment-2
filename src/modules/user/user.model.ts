@@ -1,5 +1,7 @@
+import bcrypt from "bcrypt";
 import mongoose from "mongoose";
-import User from "./user.interface";
+import config from "../../config";
+import TUser, { IUserModel, TOrder } from "./user.interface";
 const { Schema } = mongoose;
 
 const nameSchema = new Schema({
@@ -11,11 +13,15 @@ const addressSchema = new Schema({
   city: { type: String },
   country: { type: String },
 });
-
+const orderSchema = new Schema<TOrder>({
+  productName: { type: String },
+  price: { type: Number },
+  quantity: { type: Number },
+});
 // user schema
 
-const userSchema = new Schema<User>({
-  userId: { type: Number, unique: true, required: true },
+const userSchema = new Schema<TUser, IUserModel>({
+  userId: { type: String, unique: true, required: true },
   username: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   fullName: nameSchema,
@@ -23,9 +29,39 @@ const userSchema = new Schema<User>({
   email: { type: String },
   isActive: { type: Boolean, default: true },
   hobbies: [{ type: String }],
+  isDeleted: { type: Boolean, default: false },
   address: addressSchema,
+  orders: { type: [orderSchema] },
 });
 
-const UserModel = mongoose.model("User", userSchema);
+userSchema.pre("save", async function (next) {
+  this.password = await bcrypt.hash(this.password, Number(config.salt_round));
+  next();
+});
 
+userSchema.post("save", function (doc, next) {
+  next();
+});
+
+// Query
+userSchema.pre("find", function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+userSchema.pre("findOne", function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+userSchema.pre("aggregate", function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+  next();
+});
+// static method
+
+userSchema.statics.isUserExists = async function (userId: string) {
+  const user = await this.findOne({ userId });
+  return user;
+};
+
+const UserModel = mongoose.model<TUser, IUserModel>("User", userSchema);
 export default UserModel;
