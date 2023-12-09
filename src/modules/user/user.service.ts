@@ -102,6 +102,7 @@ const calcOrderTotalPrice = async (userId: string) => {
     console.log(error);
   }
 };
+
 export const userService = {
   creatUserIntoDb,
   getUsersFromDb,
