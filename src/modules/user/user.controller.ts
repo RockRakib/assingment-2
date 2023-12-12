@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
+import { z } from "zod";
 import { userService } from "./user.service";
+import UserValidatioonSchema from "./user.validation";
 
 const creatUser = async (req: Request, res: Response) => {
   try {
-    const { user } = await req.body;
+    const user = UserValidatioonSchema.parse(req.body);
 
     const result = await userService.creatUserIntoDb(user);
     if (result) {
@@ -22,14 +24,14 @@ const creatUser = async (req: Request, res: Response) => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error?.message || "User not found",
-      error: {
-        code: 404,
-        description: "User not found!",
-      },
-    });
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: "Invalid data", details: error.errors });
+    } else {
+      // Handle other errors
+      // eslint-disable-next-line no-console
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
 };
 
@@ -59,7 +61,7 @@ const getUser = async (req: Request, res: Response) => {
 
 const getUserById = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId: number = parseInt(req.params.userId);
 
     const result = await userService.getUserFromDbById(userId);
 
@@ -96,7 +98,7 @@ const getUserById = async (req: Request, res: Response) => {
 // update user
 const updateUserById = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId: number = parseInt(req.params.userId);
     const updatedData = req.body;
 
     const updatedUser = await userService.updateUserFromDbById(
@@ -122,7 +124,7 @@ const updateUserById = async (req: Request, res: Response) => {
 };
 const deleteUser = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId: number = parseInt(req.params.userId);
     const result = await userService.deleteUserById(userId);
 
     res.status(200).json({
@@ -143,7 +145,7 @@ const deleteUser = async (req: Request, res: Response) => {
 };
 const userOrders = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId: number = parseInt(req.params.userId);
     const { productName, price, quantity } = req.body;
     const order = { productName, price, quantity };
     const result = userService.getUserOrders(userId, order);
@@ -166,7 +168,7 @@ const userOrders = async (req: Request, res: Response) => {
 };
 const userAllOrder = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId: number = parseInt(req.params.userId);
     const orders = await userService.getAllOrders(userId);
 
     res.status(200).json({
@@ -187,7 +189,7 @@ const userAllOrder = async (req: Request, res: Response) => {
 };
 const calcTotalPrice = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId: number = parseInt(req.params.userId);
     const totalPrice = await userService.calcOrderTotalPrice(userId);
 
     res.status(200).json({

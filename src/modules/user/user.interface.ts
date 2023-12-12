@@ -7,7 +7,7 @@ export type TOrder = {
 };
 
 interface TUser {
-  userId: string;
+  userId: number;
   username: string;
   password: string;
   fullName: {

@@ -4,15 +4,10 @@ import config from "../../config";
 import TUser, { IUserModel, TOrder } from "./user.interface";
 const { Schema } = mongoose;
 
-const nameSchema = new Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-});
-const addressSchema = new Schema({
-  street: { type: String },
-  city: { type: String },
-  country: { type: String },
-});
+// const nameSchema = new Schema({
+
+// });
+// const addressSchema = new Schema();
 const orderSchema = new Schema<TOrder>({
   productName: { type: String },
   price: { type: Number },
@@ -21,16 +16,23 @@ const orderSchema = new Schema<TOrder>({
 // user schema
 
 const userSchema = new Schema<TUser, IUserModel>({
-  userId: { type: String, unique: true, required: true },
+  userId: { type: Number, unique: true, required: true },
   username: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-  fullName: nameSchema,
+  fullName: {
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+  },
   age: { type: Number },
   email: { type: String },
   isActive: { type: Boolean, default: true },
   hobbies: [{ type: String }],
   isDeleted: { type: Boolean, default: false },
-  address: addressSchema,
+  address: {
+    street: { type: String },
+    city: { type: String },
+    country: { type: String },
+  },
   orders: { type: [orderSchema] },
 });
 

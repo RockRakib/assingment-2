@@ -22,12 +22,12 @@ const getUsersFromDb = async () => {
   return result;
 };
 
-const getUserFromDbById = async (userId: string) => {
+const getUserFromDbById = async (userId: number) => {
   const result = await UserModel.findOne({ userId });
   return result;
 };
 const updateUserFromDbById = async (
-  userId: string,
+  userId: number,
   updatedUserData: Partial<TUser>
 ) => {
   const updatedUser = await UserModel.findOneAndUpdate(
@@ -47,13 +47,13 @@ const updateUserFromDbById = async (
   return updatedUser;
 };
 
-const deleteUserById = async (userId: string) => {
+const deleteUserById = async (userId: number) => {
   const result = await UserModel.updateOne({ userId }, { isDeleted: true });
   return result;
 };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getUserOrders = async (
-  userId: string,
+  userId: number,
   orderData: { productName: string; price: number; quantity: number }
 ) => {
   try {
@@ -73,7 +73,7 @@ const getUserOrders = async (
   }
 };
 
-const getAllOrders = async (userId: string) => {
+const getAllOrders = async (userId: number) => {
   try {
     const result = await UserModel.findOne({ userId });
     if (!result) {
@@ -86,7 +86,7 @@ const getAllOrders = async (userId: string) => {
   }
 };
 
-const calcOrderTotalPrice = async (userId: string) => {
+const calcOrderTotalPrice = async (userId: number) => {
   try {
     const result = await UserModel.findOne({ userId });
     if (!result) {
